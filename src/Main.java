@@ -1,19 +1,40 @@
+import java.util.*;
+
 public class Main {
 
     public static void main(String[] args) {
 
-        // Create booking history
-        BookingHistory history = new BookingHistory();
+        System.out.println("Booking Validation");
 
-        // Add confirmed bookings
-        history.addReservation(new Reservation("Abhi", "Single"));
-        history.addReservation(new Reservation("Subha", "Double"));
-        history.addReservation(new Reservation("Vanmathi", "Suite"));
+        Scanner scanner = new Scanner(System.in);
 
-        // Generate report
-        BookingReportService reportService = new BookingReportService();
+        RoomInventory inventory = new RoomInventory();
+        ReservationValidator validator = new ReservationValidator();
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
 
-        System.out.println("Booking History and Reporting");
-        reportService.generateReport(history);
+        try {
+            // Input
+            System.out.print("Enter guest name: ");
+            String guestName = scanner.nextLine();
+
+            System.out.print("Enter room type (Single/Double/Suite): ");
+            String roomType = scanner.nextLine();
+
+            // Validation
+            validator.validate(guestName, roomType, inventory);
+
+            // If valid → proceed
+            bookingQueue.addRequest(guestName, roomType);
+
+            System.out.println("Booking request accepted!");
+
+        } catch (InvalidBookingException e) {
+
+            // Graceful failure handling
+            System.out.println("Booking failed: " + e.getMessage());
+
+        } finally {
+            scanner.close();
+        }
     }
 }
