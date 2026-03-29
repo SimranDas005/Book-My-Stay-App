@@ -1,27 +1,19 @@
-public class Main{
+public class Main {
 
     public static void main(String[] args) {
 
-        // Create service manager
-        AddonServiceManager manager = new AddonServiceManager();
+        // Create booking history
+        BookingHistory history = new BookingHistory();
 
-        // Reservation ID
-        String reservationId = "Single-1";
+        // Add confirmed bookings
+        history.addReservation(new Reservation("Abhi", "Single"));
+        history.addReservation(new Reservation("Subha", "Double"));
+        history.addReservation(new Reservation("Vanmathi", "Suite"));
 
-        // Create services
-        AddonService breakfast = new AddonService("Breakfast", 500);
-        AddonService airportPickup = new AddonService("Airport Pickup", 1000);
+        // Generate report
+        BookingReportService reportService = new BookingReportService();
 
-        // Add services to reservation
-        manager.addService(reservationId, breakfast);
-        manager.addService(reservationId, airportPickup);
-
-        // Calculate total cost
-        double totalCost = manager.calculateTotalServiceCost(reservationId);
-
-        // Output
-        System.out.println("Add-On Service Selection");
-        System.out.println("Reservation ID: " + reservationId);
-        System.out.println("Total Add-On Cost: " + totalCost);
+        System.out.println("Booking History and Reporting");
+        reportService.generateReport(history);
     }
 }
