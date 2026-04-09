@@ -2,40 +2,43 @@ public class Main {
 
     public static void main(String[] args) {
 
-        System.out.println("Booking Cancellation & Inventory Rollback");
+        System.out.println("Concurrent Booking Simulation");
 
+        // Shared resources
         RoomInventory inventory = new RoomInventory();
-        BookingHistory history = new BookingHistory();
-        CancellationService cancellationService = new CancellationService();
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
+        RoomAllocationService allocationService = new RoomAllocationService();
 
-        // Sample reservation
-        String reservationId = "R101";
-        String roomType = "Single";
-        String roomId = "S1";
+        // Add booking requests
+        bookingQueue.addRequest(new Reservation("R1", "Abhi", "Single"));
+        bookingQueue.addRequest(new Reservation("R2", "Vanmathi", "Double"));
+        bookingQueue.addRequest(new Reservation("R3", "Kural", "Suite"));
+        bookingQueue.addRequest(new Reservation("R4", "Subha", "Single"));
+
+        // Create threads
+        Thread t1 = new Thread(
+                new ConcurrentBookingProcessor(bookingQueue, inventory, allocationService)
+        );
+
+        Thread t2 = new Thread(
+                new ConcurrentBookingProcessor(bookingQueue, inventory, allocationService)
+        );
+
+        // Start threads
+        t1.start();
+        t2.start();
 
         try {
-            // Before cancellation
-            System.out.println("Available Single Rooms BEFORE: "
-                    + inventory.getAvailableRooms(roomType));
-
-            // Perform cancellation
-            cancellationService.cancelBooking(
-                    reservationId,
-                    roomType,
-                    roomId,
-                    inventory,
-                    history
-            );
-
-            // After cancellation
-            System.out.println("Available Single Rooms AFTER: "
-                    + inventory.getAvailableRooms(roomType));
-
-            // Show rollback stack
-            cancellationService.printRollbackStack();
-
-        } catch (InvalidBookingException e) {
-            System.out.println("Cancellation failed: " + e.getMessage());
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            System.out.println("Thread execution interrupted.");
         }
+
+        // Final inventory
+        System.out.println("\nRemaining Inventory:");
+        System.out.println("Single: " + inventory.getAvailableRooms("Single"));
+        System.out.println("Double: " + inventory.getAvailableRooms("Double"));
+        System.out.println("Suite: " + inventory.getAvailableRooms("Suite"));
     }
 }
