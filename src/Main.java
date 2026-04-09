@@ -2,43 +2,23 @@ public class Main {
 
     public static void main(String[] args) {
 
-        System.out.println("Concurrent Booking Simulation");
+        System.out.println("System Recovery");
 
-        // Shared resources
         RoomInventory inventory = new RoomInventory();
-        BookingRequestQueue bookingQueue = new BookingRequestQueue();
-        RoomAllocationService allocationService = new RoomAllocationService();
+        FilePersistenceService persistenceService = new FilePersistenceService();
 
-        // Add booking requests
-        bookingQueue.addRequest(new Reservation("R1", "Abhi", "Single"));
-        bookingQueue.addRequest(new Reservation("R2", "Vanmathi", "Double"));
-        bookingQueue.addRequest(new Reservation("R3", "Kural", "Suite"));
-        bookingQueue.addRequest(new Reservation("R4", "Subha", "Single"));
+        String filePath = "inventory.txt";
 
-        // Create threads
-        Thread t1 = new Thread(
-                new ConcurrentBookingProcessor(bookingQueue, inventory, allocationService)
-        );
+        // 🔄 Load saved state (if exists)
+        persistenceService.loadInventory(inventory, filePath);
 
-        Thread t2 = new Thread(
-                new ConcurrentBookingProcessor(bookingQueue, inventory, allocationService)
-        );
-
-        // Start threads
-        t1.start();
-        t2.start();
-
-        try {
-            t1.join();
-            t2.join();
-        } catch (InterruptedException e) {
-            System.out.println("Thread execution interrupted.");
-        }
-
-        // Final inventory
-        System.out.println("\nRemaining Inventory:");
+        // 📊 Display current inventory
+        System.out.println("\nCurrent Inventory:");
         System.out.println("Single: " + inventory.getAvailableRooms("Single"));
         System.out.println("Double: " + inventory.getAvailableRooms("Double"));
         System.out.println("Suite: " + inventory.getAvailableRooms("Suite"));
+
+        // 💾 Save state before exit
+        persistenceService.saveInventory(inventory, filePath);
     }
 }
